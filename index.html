@@ -155,6 +155,9 @@ pre{background:var(--bar);border:1px solid var(--line);border-radius:var(--r);pa
 [data-skin=a] .pri{box-shadow:0 0 18px rgba(34,227,255,.35)}[data-skin=a] .seg button.on{box-shadow:0 0 14px rgba(34,227,255,.3)}
 [data-skin=c] .card,[data-skin=c] .stats div,[data-skin=c] .chip,[data-skin=c] .tools button{box-shadow:0 1px 3px rgba(16,24,40,.07)}
 </style>
+<script>/* 利用状況の計測（GoatCounter。Cookieなし・回数だけ。公開URLで開いたときだけ） */
+if(location.hostname==='u1908inter.github.io'){window.goatcounter={path:function(){return location.pathname}};var gs=document.createElement('script');gs.async=true;gs.src='https://gc.zgo.at/count.js';gs.setAttribute('data-goatcounter','https://u1908inter.goatcounter.com/count');
+gs.onload=function(){try{if(matchMedia('(display-mode: standalone)').matches||navigator.standalone)setTimeout(function(){window.goatcounter.count({path:'bss-launch-home',title:'bss-launch-home',event:true})},500)}catch(e){}};document.head.appendChild(gs)}</script>
 </head>
 <body>
 <div id="app">
@@ -262,7 +265,8 @@ pre{background:var(--bar);border:1px solid var(--line);border-radius:var(--r);pa
   <p class="note" style="margin:0">ブラウザのメニューから「ホーム画面に追加」すると、アプリのように起動できます。作業中のデータはもともと端末の中に保存されています。</p></div>
   <h2>このアプリについて</h2>
   <div class="card"><p style="margin:0 0 4px;font-weight:var(--wh);font-size:18px;font-family:var(--num)">BeSmart Studio</p>
-  <p class="note" style="margin:0">スマホで作れるBMS制作ツール。作った曲はZIPで保存して、BeSmartなどのBMSプレイヤーで遊べます。</p></div>
+  <p class="note" style="margin:0">スマホで作れるBMS制作ツール。作った曲はZIPで保存して、BeSmartなどのBMSプレイヤーで遊べます。</p>
+  <p class="note" style="margin:8px 0 0">譜面・音・画像はこの端末のブラウザの中だけに保存され、外部には送りません。利用状況を知るために GoatCounter（Cookieを使わず、個人を特定しない解析サービス）で、ページの表示回数と「BMSを開く」「ZIPで保存」などの回数だけを数えています。曲名や譜面・ファイルの中身は送りません。</p></div>
   <h2>使用しているソフトウェア</h2>
   <div class="card lic">
     <details><summary>node-unrar-js (MIT) / UnRAR</summary><pre style="white-space:pre-wrap;font-size:10px">Copyright (c) 2017 Jianrong Yu.
@@ -498,6 +502,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
   </dl></details>
   <details><summary>開く・保存・確認</summary><dl>
     <dt>今あるBMSを開く</dt><dd>「ファイル」タブで、曲フォルダの書庫（ZIP・LZH・RAR・7z）か、BMSと音ファイルをまとめて選びます</dd>
+    <dt>保存</dt><dd>「ZIPで保存する」で、BMSと音・画像をまとめたZIPを作ります。ZIPから開いた曲は、元のZIPに上書きするか、別のファイルとして保存するかを選べます（上書きはPC・AndroidのChromeやEdgeなど）</dd>
     <dt>試し再生</dt><dd>「再生」は見ている小節から、「頭から」は最初から</dd>
     <dt>重なりチェック</dt><dd>「ファイル」タブで重なりなどを一覧表示。タップでその場所へ移動</dd>
     <dt>データの保存先</dt><dd>作業中のデータはこの端末のブラウザに自動で残ります。別の端末には引き継がれないので、ZIPで保存しておくと安心です</dd>
@@ -823,7 +828,7 @@ $('#slist').addEventListener('change',e=>{if(e.target.dataset.a!=='name')return;
 $('#bClean').onclick=async()=>{const used=new Set(P.notes.filter(n=>!isV(n.c)).map(n=>n.s)),un=P.sounds.filter(s=>!used.has(s.id));if(!un.length)return toast('使っていない音はありません');
   if(!await ask(`譜面で使っていない音が${un.length}個あります。まとめて消しますか？`,'消す'))return;P.sounds=P.sounds.filter(s=>used.has(s.id));for(const s of un)cache.delete(s.id);if(!snd(sel))sel=P.sounds[0]?P.sounds[0].id:0;changed();toast(`${un.length}個消しました`)};
 $('#fileIn').addEventListener('change',async e=>{await addFiles([...e.target.files]);e.target.value=''});
-document.querySelectorAll('.kitBtn').forEach(b=>b.onclick=()=>{ac();makeKit()});
+document.querySelectorAll('.kitBtn').forEach(b=>b.onclick=()=>{ac();makeKit();track('kit')});
 function changed(){lnoDirty=true;rebuild();save();renderPal();renderSounds();renderBmps();renderHead();renderStats();draw()}
 /* ---------- BGA（画像・動画） ---------- */
 async function addBmps(files){let n=0;for(const f of files){const ext=((f.name.match(/\.([a-z0-9]+)$/i)||[0,''])[1]).toLowerCase();if(!VEXT.test(ext)){toast('画像か動画のファイルを選んでください');continue}
@@ -930,6 +935,20 @@ function zip(files){const enc=new TextEncoder(),parts=[],cent=[];let off=0,cs=0;
 let DL=null;try{if(window.claude&&claude.use)claude.use('downloads').then(d=>{DL=d}).catch(()=>{})}catch(e){}
 async function saveFile(name,blob){if(DL){try{await DL.save({filename:name,data:blob});toast('保存しました');return}catch(e){if(e&&e.code==='declined')return toast('保存をやめました');if(e&&e.code==='rate_limited')return toast('少し待ってからもう一度押してください')}}
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),8000)}
+async function writeHandle(h,blob){const w=await h.createWritable();await w.write(blob);await w.close()}
+async function canWrite(h){try{if(await h.queryPermission({mode:'readwrite'})==='granted')return true;return await h.requestPermission({mode:'readwrite'})==='granted'}catch(e){return false}}
+// 元のZIPの中身はそのまま残し、BSSで変えたファイル（BMS・追加した音や画像）だけを入れかえる
+async function overwriteZip(src,folder,files){const h=src.handle;
+  if(!await canWrite(h)){toast('元のファイルへの書き込みが許可されませんでした');return false}
+  let orig;try{orig=await readZip(await h.getFile())}catch(e){toast('元のZIPが見つからないか、読めませんでした（移動・削除されたかもしれません）');return false}
+  const map=new Map();for(const o of orig){try{map.set(o.name.toLowerCase(),{name:o.name,data:new Uint8Array(await o.get())})}catch(e){toast('元のZIPの中に読めないファイルがあるため、上書きできません');return false}}
+  for(const f of files){const name=src.dir+f.name.slice(folder.length+1);map.set(name.toLowerCase(),{name,data:f.data})}
+  try{await writeHandle(h,zip([...map.values()]))}catch(e){toast('上書きできませんでした：'+(e.message||e));return false}
+  toast(`「${src.name}」に上書きしました`);return true}
+async function saveAsNew(name,blob){
+  if(FSA&&'showSaveFilePicker' in window){let h;try{h=await window.showSaveFilePicker({suggestedName:name,types:[{description:'ZIP',accept:{'application/zip':['.zip']}}]})}catch(x){if(x&&x.name==='AbortError')return toast('保存をやめました');return saveFile(name,blob)}
+    try{await writeHandle(h,blob);toast('保存しました')}catch(e){toast('保存できませんでした：'+(e.message||e))}return}
+  return saveFile(name,blob)}
 $('#bZip').onclick=async()=>{if(!P.notes.length)return toast('まだノーツがありません');
   const folder=P.folder||(P.title.replace(/[^A-Za-z0-9_\- ]/g,'').trim().replace(/\s+/g,'_')||'mysong').slice(0,40),txt=bmsText();let bytes;
   if($('#enc').value==='sjis'){try{bytes=sjis(txt)}catch(e){bytes=new TextEncoder().encode(txt);toast('この端末ではShift_JISにできないためUTF-8で保存します')}}else bytes=new TextEncoder().encode(txt);
@@ -937,7 +956,14 @@ $('#bZip').onclick=async()=>{if(!P.notes.length)return toast('まだノーツが
     ...P.bmps.filter(b=>b.data).map(b=>({name:`${folder}/${b.file||'bga_'+id36(b.id)+'.'+b.ext}`,data:new Uint8Array(b.data)})),
     ...[P.stage,P.banner,P.back,...(P.extra||[])].filter(o=>o&&o.data).map(o=>({name:`${folder}/${o.file}`,data:new Uint8Array(o.data)}))];
   {const seen=new Set();for(let i=files.length-1;i>=0;i--){const k=files[i].name.toLowerCase();if(seen.has(k))files.splice(i,1);else seen.add(k)}}
-  await saveFile(folder+'.zip',zip(files))};
+  const src=P.src;
+  if(src&&src.kind==='zip'&&src.handle&&FSA){
+    const i=await ask(`保存のしかたを選んでください。\n\n上書きすると、元のZIPに入っているほかの譜面や音はそのまま残り、変更したBMSと追加した音・画像だけが入れかわります。`,'',{list:[`元のZIP（${src.name}）に上書きする`,'別のファイルとして保存する']});
+    if(i<0)return;
+    if(i===0){if(await overwriteZip(src,folder,files))track('save-overwrite');return}}
+  else if(src&&src.kind==='zip')toast('このブラウザでは元のZIPに上書きできないため、別のファイルとして保存します');
+  else if(src)toast('元の書庫がZIPではないため、別のZIPとして保存します');
+  track('save-zip');await saveAsNew(folder+'.zip',zip(files))};
 $('#bView').onclick=()=>{const p=$('#pre');p.textContent=bmsText();p.hidden=false};
 $('#bCopy').onclick=async()=>{try{await navigator.clipboard.writeText(bmsText());toast('コピーしました')}catch(e){const p=$('#pre');p.textContent=bmsText();p.hidden=false;toast('コピーできないので下に表示しました')}};
 $('#bNew').onclick=async()=>{if(!await ask('今の曲のデータ（音・譜面・曲情報）をすべて消して、新しく作り始めますか？','消して作り直す'))return;
@@ -1207,9 +1233,11 @@ async function archKind(f){const n=f.name.toLowerCase();if(/\.zip$/.test(n))retu
   if(!/\.(bms|bme|bml|pms|wav|ogg|mp3|flac|png|jpe?g|bmp|gif|mp4|webm|txt)$/.test(n)){const u=new Uint8Array(await f.slice(0,8).arrayBuffer());
     if(u[0]===0x50&&u[1]===0x4B)return'zip';if(u[0]===0x52&&u[1]===0x61&&u[2]===0x72&&u[3]===0x21)return'rar';if(u[0]===0x37&&u[1]===0x7A&&u[2]===0xBC&&u[3]===0xAF)return'7z';if(u[2]===0x2D&&u[3]===0x6C&&(u[4]===0x68||u[4]===0x7A)&&u[6]===0x2D)return'lzh'}
   return''}
-async function openBms(files){let entries=[];
-  for(const f of files){const k=await archKind(f);if(!k){entries.push({name:f.name,get:()=>f.arrayBuffer()});continue}
-    try{if(k!=='zip')toast('展開中…');entries.push(...(k==='zip'?await readZip(f):k==='lzh'?await readLzhFile(f):k==='7z'?await read7zFile(f):await readRarFile(f)))}catch(e){return toast(e.message)}}
+/* ---------- 利用回数（GoatCounter：回数だけ。譜面や音の中身は送らない） ---------- */
+function track(path){try{const gc=window.goatcounter;if(gc&&typeof gc.count==='function')gc.count({path:'bss-'+path,title:'bss-'+path,event:true})}catch(e){}}
+async function openBms(files,handles){let entries=[],kinds=[];
+  for(let fi=0;fi<files.length;fi++){const f=files[fi],k=await archKind(f);kinds.push(k||'files');if(!k){entries.push({name:f.name,get:()=>f.arrayBuffer()});continue}
+    try{if(k!=='zip')toast('展開中…');const es=k==='zip'?await readZip(f):k==='lzh'?await readLzhFile(f):k==='7z'?await read7zFile(f):await readRarFile(f);es.forEach(x=>{x.arc={kind:k,name:f.name,handle:handles&&handles[fi]||null}});entries.push(...es)}catch(e){return toast(e.message)}}
   const list=entries.filter(e=>BMSX.test(e.name));if(!list.length)return toast('BMSファイル（.bms / .bme / .bml）が見つかりません');
   let target=list[0];if(list.length>1){const i=await ask('どの譜面を開きますか？','',{list:list.map(e=>e.name)});if(i<0)return;target=list[i]}
   if((P.notes.length||P.sounds.length)&&!await ask('今作っている曲のデータは消えて、読み込んだBMSに置きかわります。開きますか？','開く'))return;
@@ -1229,7 +1257,8 @@ async function openBms(files){let entries=[];
     for(const h of r.hdr){const m=h.match(/^#\S+\s+(.+\.[A-Za-z0-9]{2,4})\s*$/);if(!m)continue;const e=byName.get(base(m[1].replace(/\\/g,'/')).toLowerCase());if(e){try{extra.push({file:e.name.slice(dir.length),data:await e.get()})}catch(x){}}}
     P=Object.assign(blank(),{title:r.title,artist:r.artist,genre:r.genre,bpm:r.bpm,level:r.level,mode:r.notes.some(n=>n.c==='18'||n.c==='19')?7:5,
       sounds,bmps,nextBmp:Math.max(0,...bmps.map(b=>b.id),...r.notes.filter(n=>isV(n.c)).map(n=>n.s))+1,stage:stage&&stage.data?stage:null,banner:banner&&banner.data?banner:null,back:back&&back.data?back:null,rnd:r.rnd,base62:r.b62,extra,notes:r.notes,next:Math.max(0,...sounds.map(s=>s.id),...r.notes.filter(n=>!isV(n.c)).map(n=>n.s))+1,hdr:r.hdr,raw:r.raw,mlen:r.mlen,bpmc:r.bpmc,stops:r.stops,enc,
-      folder:(dir.replace(/\/$/,'').split('/').pop()||base(target.name).replace(BMSX,'')).slice(0,60),bmsName:base(target.name)});
+      folder:(dir.replace(/\/$/,'').split('/').pop()||base(target.name).replace(BMSX,'')).slice(0,60),bmsName:base(target.name),
+      src:target.arc?{kind:target.arc.kind,name:target.arc.name,handle:target.arc.handle,dir}:null});
     if(stage&&!stage.data)P.hdr.push('#STAGEFILE '+stage.file);if(banner&&!banner.data)P.hdr.push('#BANNER '+banner.file);if(back&&!back.data)P.hdr.push('#BACKBMP '+back.file);
     if(enc!=='sjis'&&enc!=='utf8'){r.warn.add('enc');P.enc='utf8'}
     P.measures=Math.min(999,Math.max(16,lastM()+2));
@@ -1239,9 +1268,15 @@ async function openBms(files){let entries=[];
     if(miss)msg.push('',`見つからない音ファイルが${miss}個あります。音ファイルも一緒に選ぶか、曲フォルダの書庫で開き直してください。`);
     if(bmps.length)msg.push(`画像・動画（BGA）${bmps.length}個`+(missB?`（見つからないファイル ${missB}個）`:''));
     if(r.warn.size)msg.push('',...[...r.warn].map(w=>'・'+WARN[w]));
+    track('open-'+(kinds.find(k=>k!=='files')||'files'));
     await ask(msg.join('\n'),'OK',{noCancel:true})}
   catch(e){toast('読み込めませんでした：'+(e.message||e))}}
 $('#openIn').addEventListener('change',async e=>{const f=[...e.target.files];e.target.value='';if(f.length)await openBms(f)});
+/* 元のZIPに上書きできるブラウザ（Chrome・Edge など）では、書き戻せる形でファイルを開く */
+const FSA=(()=>{try{return 'showOpenFilePicker' in window&&window.top===window.self}catch(e){return false}})();
+document.querySelectorAll('label[for=openIn]').forEach(l=>l.addEventListener('click',async ev=>{if(!FSA)return;ev.preventDefault();
+  let hs;try{hs=await window.showOpenFilePicker({multiple:true})}catch(x){if(x&&x.name==='AbortError')return;return $('#openIn').click()}
+  const fs=await Promise.all(hs.map(h=>h.getFile()));await openBms(fs,hs)}));
 
 /* ---------- タブ ---------- */
 document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{if(playing&&b.dataset.v!=='chart')stop();

@@ -1,5 +1,5 @@
 // BeSmart Studio のオフライン対応（一度開いたページと素材を端末に保存しておく）
-const V = 'bss-v5';
+const V = 'bss-v6';
 const CORE = ['./', './index.html', './about.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable.png', './apple-touch-icon.png'];
 // 7z・RARを開く部品（BeSmartと同じもの）。オフラインでも開けるよう一緒に保存する
 const LIBS = ['./la/libarchive.js', './la/worker-bundle.js', './la/libarchive.wasm', './unrar.js', './unrar.wasm'];

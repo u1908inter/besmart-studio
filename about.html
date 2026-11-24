@@ -115,6 +115,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 @media(prefers-reduced-motion:no-preference){.note-fall{animation:fall 6s linear infinite}}
 @keyframes fall{from{transform:translateY(-120px)}to{transform:translateY(760px)}}
 </style>
+<script>/* 利用状況の計測（GoatCounter。Cookieなし・回数だけ。公開URLで開いたときだけ） */
+if(location.hostname==='u1908inter.github.io'){window.goatcounter={path:function(){return location.pathname}};var gs=document.createElement('script');gs.async=true;gs.src='https://gc.zgo.at/count.js';gs.setAttribute('data-goatcounter','https://u1908inter.goatcounter.com/count');document.head.appendChild(gs)}</script>
 </head>
 <body>
 <header><div class="wrap bar">
@@ -285,7 +287,8 @@ footer .wrap{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap}
 <section class="band faq" id="faq" style="padding-top:0"><div class="wrap" style="max-width:860px">
   <h2>よくある質問</h2>
   <details><summary>お金はかかりますか？</summary><p>無料です。アカウント登録もいりません。</p></details>
-  <details><summary>作ったデータはどこに保存されますか？</summary><p>使っている端末のブラウザの中に自動で保存されます。サーバーには送られません。別の端末には引き継がれないので、区切りのいいところでZIPに保存しておくと安心です。</p></details>
+  <details><summary>開いたZIPに上書き保存できますか？</summary><p>できます。ZIPから開いた曲を保存するときに「元のZIPに上書きする」か「別のファイルとして保存する」かを選べます。上書きしても、元のZIPに入っているほかの譜面や音はそのまま残り、変更したBMSと追加した音・画像だけが入れかわります。上書きはPC・AndroidのChromeやEdgeなどで使えます。iPhone・iPadなど上書きに対応していないブラウザでは、別のファイルとして保存されます。</p></details>
+  <details><summary>作ったデータはどこに保存されますか？</summary><p>使っている端末のブラウザの中に自動で保存されます。サーバーには送られません。別の端末には引き継がれないので、区切りのいいところでZIPに保存しておくと安心です。なお、利用状況を知るために GoatCounter（Cookieを使わず、個人を特定しない解析サービス）で、ページの表示回数と「BMSを開く」「ZIPで保存」などの回数だけを数えています。曲名や譜面・ファイルの中身は送りません。</p></details>
   <details><summary>どんなファイルが使えますか？</summary><p>音はwav・ogg・mp3など、画像はpng・jpg・bmpなど、動画はmp4・webmなどが使えます。昔のBMSに多いmpg・avi・wmvの動画も保存には入りますが、BSS上での試し再生はできません。</p></details>
   <details><summary>今あるBMSを編集できますか？</summary><p>できます。曲フォルダの書庫（ZIP・LZH・RAR・7z）か、BMSファイルと音ファイルをまとめて選んで開きます。.bms・.bme・.bmlに対応し、Shift_JIS・UTF-8・EUC-KRなどの文字コードも自動で判別します。</p></details>
   <details><summary>オフラインでも使えますか？</summary><p>使えます。一度開いたあとは、電波のない場所でも動きます。スマホのブラウザで「ホーム画面に追加」しておくと、アプリのように起動できて便利です。</p></details>
